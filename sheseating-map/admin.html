@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sheseating Admin Review</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#F4F6F1; --surface:#FFFFFF; --ink:#1B201A; --muted:#6C7568;
+    --border:#DFE3D8; --accent:#FF5A36; --accent-ink:#7A2412;
+    --danger:#C0392B; --ok:#2F6F5E; --shadow:0 8px 24px rgba(27,32,26,0.12);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#12140F; --surface:#1B1F17; --ink:#EDEFE8; --muted:#9CA491; --border:#2B3025; --shadow:0 8px 28px rgba(0,0,0,0.45); }
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Work Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;}
+  header{padding:18px 20px;border-bottom:1px solid var(--border);background:var(--surface);}
+  h1{font-family:'Fraunces',Georgia,serif;font-size:1.3rem;margin:0 0 4px;}
+  header p{margin:0;color:var(--muted);font-size:0.85rem;}
+  main{max-width:820px;margin:0 auto;padding:24px 16px 60px;}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:18px;margin-bottom:18px;}
+  .login-card{max-width:360px;margin:60px auto;}
+  label{display:block;font-size:0.78rem;color:var(--muted);margin:12px 0 4px;}
+  label:first-child{margin-top:0;}
+  input, textarea{
+    width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:8px;
+    background:var(--bg);color:var(--ink);font-family:inherit;font-size:0.9rem;
+  }
+  textarea{min-height:64px;resize:vertical;}
+  button{
+    font-family:inherit;font-weight:600;font-size:0.88rem;cursor:pointer;
+    border-radius:8px;border:1px solid transparent;padding:9px 16px;
+  }
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-primary:disabled{opacity:0.5;cursor:default;}
+  .btn-ghost{background:transparent;border-color:var(--border);color:var(--ink);}
+  #loginError{color:var(--danger);font-size:0.85rem;margin-top:10px;display:none;}
+
+  .row-head{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+  .row-head img{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--bg);}
+  .badge{font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:5px;color:#fff;}
+  .badge.facebook{background:#1877F2;} .badge.instagram{background:#C13584;} .badge.tiktok{background:#111;} .badge.unknown{background:#888;}
+  .row-head a{font-size:0.8rem;color:var(--accent-ink);text-decoration:none;margin-left:auto;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;}
+  @media (max-width:520px){ .grid{grid-template-columns:1fr;} }
+  .actions{display:flex;gap:10px;align-items:center;margin-top:14px;}
+  .status-msg{font-size:0.82rem;}
+  .status-msg.ok{color:var(--ok);} .status-msg.err{color:var(--danger);}
+  #empty, #loading{color:var(--muted);text-align:center;padding:40px 0;}
+  #topBar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:10px;flex-wrap:wrap;}
+  #topBar h2{font-size:1rem;margin:0;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔒 Sheseating Admin Review</h1>
+  <p>Not linked from the public map. Nothing here loads without the review password.</p>
+</header>
+
+<main>
+  <div class="card login-card" id="loginCard">
+    <label for="user">Username</label>
+    <input id="user" autocomplete="username">
+    <label for="pass">Password</label>
+    <input id="pass" type="password" autocomplete="current-password">
+    <div class="actions" style="margin-top:16px;">
+      <button class="btn-primary" id="loginBtn" style="width:100%;">Sign in</button>
+    </div>
+    <div id="loginError"></div>
+  </div>
+
+  <div id="appArea" style="display:none;">
+    <div id="topBar">
+      <h2 id="countLabel">Needs review</h2>
+      <button class="btn-ghost" id="refreshBtn">Refresh</button>
+    </div>
+    <div id="loading" style="display:none;">Loading…</div>
+    <div id="empty" style="display:none;">Nothing waiting for review right now.</div>
+    <div id="list"></div>
+  </div>
+</main>
+
+<script>
+(function(){
+  // Update this once n8n has a public URL (Cloudflare Tunnel etc.) instead of localhost.
+  var N8N_BASE = 'http://localhost:5678';
+  var LIST_URL = N8N_BASE + '/webhook/sheseating-review/list';
+  var APPROVE_URL = N8N_BASE + '/webhook/sheseating-review/approve';
+
+  var authHeader = null;
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  document.getElementById('loginBtn').addEventListener('click', function(){
+    var user = document.getElementById('user').value.trim();
+    var pass = document.getElementById('pass').value;
+    if (!user || !pass) return;
+    authHeader = 'Basic ' + btoa(user + ':' + pass);
+    loadList(true);
+  });
+
+  function showLoginError(msg){
+    var el = document.getElementById('loginError');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function loadList(isFirstLoad){
+    var loading = document.getElementById('loading');
+    var empty = document.getElementById('empty');
+    var list = document.getElementById('list');
+    loading.style.display = 'block';
+    empty.style.display = 'none';
+    list.innerHTML = '';
+
+    fetch(LIST_URL, { headers: { 'Authorization': authHeader } })
+      .then(function(r){
+        if (r.status === 401 || r.status === 403) throw new Error('AUTH');
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(data){
+        loading.style.display = 'none';
+        document.getElementById('loginCard').style.display = 'none';
+        document.getElementById('appArea').style.display = 'block';
+        var rows = data.rows || [];
+        document.getElementById('countLabel').textContent =
+          rows.length + (rows.length === 1 ? ' video needs review' : ' videos need review');
+        if (!rows.length){ empty.style.display = 'block'; return; }
+        rows.forEach(function(row){ list.appendChild(renderCard(row)); });
+      })
+      .catch(function(err){
+        loading.style.display = 'none';
+        if (err.message === 'AUTH') {
+          if (isFirstLoad) showLoginError('Wrong username or password.');
+          else { authHeader = null; document.getElementById('appArea').style.display = 'none'; document.getElementById('loginCard').style.display = 'block'; }
+        } else if (isFirstLoad) {
+          showLoginError('Could not reach n8n (' + err.message + '). Is it running and is N8N_BASE correct in this page?');
+        }
+      });
+  }
+
+  document.getElementById('refreshBtn').addEventListener('click', function(){ loadList(false); });
+
+  function field(labelText, key, value, type){
+    return '<div>' +
+      '<label>' + esc(labelText) + '</label>' +
+      (type === 'textarea'
+        ? '<textarea data-field="' + key + '">' + esc(value) + '</textarea>'
+        : '<input data-field="' + key + '" value="' + esc(value) + '">') +
+      '</div>';
+  }
+
+  function renderCard(row){
+    var card = document.createElement('div');
+    card.className = 'card';
+    var platformCls = (row.platform || 'unknown').toLowerCase();
+    card.innerHTML =
+      '<div class="row-head">' +
+        (row.thumbnailUrl ? '<img src="' + esc(row.thumbnailUrl) + '" alt="">' : '') +
+        '<span class="badge ' + esc(platformCls) + '">' + esc(platformCls) + '</span>' +
+        '<a href="' + esc(row.videoUrl || '') + '" target="_blank" rel="noopener">Watch video ↗</a>' +
+      '</div>' +
+      '<div class="grid">' +
+        field('Restaurant name', 'restaurantName', row.restaurantName || '') +
+        field('Location (city, state or full address)', 'normalizedLocation', row.normalizedLocation || row.locationHint || '') +
+        field('Website', 'website', row.website || '') +
+        field('Yelp URL', 'yelpUrl', row.yelpUrl || '') +
+        field('Menu URL', 'menuUrl', row.menuUrl || '') +
+        field('Video date', 'videoDate', row.videoDate || '') +
+      '</div>' +
+      field('Must-try quote', 'quote', row.quote || '', 'textarea') +
+      '<div class="actions">' +
+        '<button class="btn-primary" data-action="approve">Approve &amp; publish</button>' +
+        '<span class="status-msg"></span>' +
+      '</div>';
+
+    card.querySelector('[data-action="approve"]').addEventListener('click', function(){
+      approve(row.id, card);
+    });
+    return card;
+  }
+
+  function approve(id, card){
+    var btn = card.querySelector('[data-action="approve"]');
+    var status = card.querySelector('.status-msg');
+    var payload = { id: id };
+    card.querySelectorAll('[data-field]').forEach(function(el){
+      payload[el.getAttribute('data-field')] = el.value;
+    });
+
+    btn.disabled = true;
+    status.className = 'status-msg';
+    status.textContent = 'Publishing…';
+
+    fetch(APPROVE_URL, {
+      method: 'POST',
+      headers: { 'Authorization': authHeader, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(body){ return { ok: r.ok, body: body }; }); })
+      .then(function(res){
+        btn.disabled = false;
+        if (res.ok && res.body && res.body.ok) {
+          status.className = 'status-msg ok';
+          status.textContent = 'Published — removing from queue…';
+          setTimeout(function(){ card.remove(); }, 900);
+        } else {
+          status.className = 'status-msg err';
+          status.textContent = (res.body && res.body.message) || 'Something went wrong — check the details and try again.';
+        }
+      })
+      .catch(function(err){
+        btn.disabled = false;
+        status.className = 'status-msg err';
+        status.textContent = 'Request failed: ' + err.message;
+      });
+  }
+})();
+</script>
+</body>
+</html>

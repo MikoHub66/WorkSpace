@@ -284,7 +284,15 @@
   function popupHtml(entry, cls){
     var links = '';
     if (entry.website) links += '<a href="' + esc(entry.website) + '" target="_blank" rel="noopener">Website</a>';
+    if (entry.menuUrl) links += '<a href="' + esc(entry.menuUrl) + '" target="_blank" rel="noopener">Menu</a>';
     if (entry.yelpUrl) links += '<a href="' + esc(entry.yelpUrl) + '" target="_blank" rel="noopener">Yelp</a>';
+    if (typeof entry.lat === 'number' && typeof entry.lng === 'number') {
+      links += '<a href="https://www.google.com/maps/dir/?api=1&destination=' + entry.lat + ',' + entry.lng +
+        '" target="_blank" rel="noopener">Directions</a>';
+    }
+    var searchQuery = entry.restaurantName + (entry.location ? ' ' + entry.location : '');
+    links += '<a href="https://www.google.com/search?q=' + encodeURIComponent(searchQuery) +
+      '" target="_blank" rel="noopener">Google search</a>';
     if (entry.videoUrl) links += '<a href="' + esc(entry.videoUrl) + '" target="_blank" rel="noopener">Watch video</a>';
     return '' +
       '<div class="popup">' +
@@ -340,6 +348,7 @@
       lat: 25.7743, lng: -80.1937,
       location: "Miami, FL",
       website: "https://example.com",
+      menuUrl: "https://example.com/menu",
       yelpUrl: "https://www.yelp.com/",
       videoUrl: "https://www.instagram.com/sheseatingit/",
       date: "2026-08-02",
