@@ -64,5 +64,27 @@
         "quote": "Known for its wide variety of nostalgic and specialty candies, including exotic Japanese candies and European chocolates"
       }
     ]
+  },
+  {
+    "restaurantName": "Melt Crepes & Gelato",
+    "platform": "facebook",
+    "lat": 41.697407,
+    "lng": -83.644962,
+    "location": "4405 Talmadge Rd, Toledo, OH 43623",
+    "website": "https://meltcrepes.com",
+    "yelpUrl": "",
+    "menuUrl": "https://meltcrepes.com/order",
+    "videoUrl": "https://www.facebook.com/reel/3937119853097725",
+    "date": "",
+    "quote": "Known for their Dubai-style strawberry cups, kunafa crepes, and handmade Italian gelato",
+    "thumbnailUrl": "",
+    "videos": [
+      {
+        "platform": "facebook",
+        "videoUrl": "https://www.facebook.com/reel/3937119853097725",
+        "date": "",
+        "quote": "Known for their Dubai-style strawberry cups, kunafa crepes, and handmade Italian gelato"
+      }
+    ]
   }
 ]
