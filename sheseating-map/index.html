@@ -152,7 +152,7 @@
     padding:2px 7px;
     border-radius:5px;
     color:#fff;
-    margin-bottom:6px;
+    margin:0 5px 6px 0;
   }
   .badge.fb{background:var(--fb);}
   .badge.ig{background:var(--ig);}
@@ -293,10 +293,27 @@
     var searchQuery = entry.restaurantName + (entry.location ? ' ' + entry.location : '');
     links += '<a href="https://www.google.com/search?q=' + encodeURIComponent(searchQuery) +
       '" target="_blank" rel="noopener">Google search</a>';
-    if (entry.videoUrl) links += '<a href="' + esc(entry.videoUrl) + '" target="_blank" rel="noopener">Watch video</a>';
+
+    var videos = Array.isArray(entry.videos) && entry.videos.length
+      ? entry.videos
+      : (entry.videoUrl ? [{ platform: entry.platform, videoUrl: entry.videoUrl }] : []);
+    videos.forEach(function(v){
+      if (!v.videoUrl) return;
+      links += '<a href="' + esc(v.videoUrl) + '" target="_blank" rel="noopener">Watch on ' +
+        esc(platformLabel(platformClass(v.platform))) + '</a>';
+    });
+
+    var badges = videos.length
+      ? videos.reduce(function(acc, v){
+          var c = platformClass(v.platform);
+          if (acc.indexOf(c) === -1) acc.push(c);
+          return acc;
+        }, [])
+      : [cls];
+
     return '' +
       '<div class="popup">' +
-        '<span class="badge ' + cls + '">' + platformLabel(cls) + '</span>' +
+        badges.map(function(b){ return '<span class="badge ' + b + '">' + platformLabel(b) + '</span>'; }).join(' ') +
         '<h2>' + esc(entry.restaurantName) + '</h2>' +
         '<div class="date">' + esc(fmtDate(entry.date)) + (entry.location ? ' · ' + esc(entry.location) : '') + '</div>' +
         (entry.quote ? '<blockquote>&ldquo;' + esc(entry.quote) + '&rdquo;</blockquote>' : '') +
@@ -365,7 +382,21 @@
       videoUrl: "https://www.tiktok.com/@sheseatingit",
       date: "2026-07-18",
       quote: "Get the truffle cacio e pepe, it's the best on the block.",
-      thumbnailUrl: "https://picsum.photos/seed/nonnastable/200/200"
+      thumbnailUrl: "https://picsum.photos/seed/nonnastable/200/200",
+      videos: [
+        {
+          platform: "tiktok",
+          videoUrl: "https://www.tiktok.com/@sheseatingit",
+          date: "2026-07-18",
+          quote: "Get the truffle cacio e pepe, it's the best on the block."
+        },
+        {
+          platform: "instagram",
+          videoUrl: "https://www.instagram.com/sheseatingit/",
+          date: "2026-05-02",
+          quote: "Back for round two — still the best pasta in the neighborhood."
+        }
+      ]
     }
   ];
 
