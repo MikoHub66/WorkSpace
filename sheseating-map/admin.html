@@ -58,8 +58,8 @@
 <body>
 
 <header>
-  <h1>🔒 Sheseating Admin Review</h1>
-  <p>Not linked from the public map. Nothing here loads without the review password.</p>
+  <h1>🔒 Sheseating Admin</h1>
+  <p>Review new drafts and edit anything already live on the map. Not linked from the public map — nothing here loads without the review password.</p>
 </header>
 
 <main>
@@ -135,8 +135,16 @@
         document.getElementById('loginCard').style.display = 'none';
         document.getElementById('appArea').style.display = 'block';
         var rows = data.rows || [];
+        // Needs-review rows first (the actual queue), published rows below (edit/fix anything already live)
+        rows.sort(function(a, b){
+          if (a.status === b.status) return 0;
+          return a.status === 'needs_review' ? -1 : 1;
+        });
+        var needsReviewCount = rows.filter(function(r){ return r.status === 'needs_review'; }).length;
+        var publishedCount = rows.length - needsReviewCount;
         document.getElementById('countLabel').textContent =
-          rows.length + (rows.length === 1 ? ' video needs review' : ' videos need review');
+          needsReviewCount + (needsReviewCount === 1 ? ' needs review' : ' need review') +
+          ' · ' + publishedCount + ' published';
         if (!rows.length){ empty.style.display = 'block'; return; }
         rows.forEach(function(row){ list.appendChild(renderCard(row)); });
       })
@@ -166,15 +174,20 @@
     var card = document.createElement('div');
     card.className = 'card';
     var platformCls = (row.platform || 'unknown').toLowerCase();
+    var isPublished = row.status === 'approved';
     card.innerHTML =
       '<div class="row-head">' +
         (row.thumbnailUrl ? '<img src="' + esc(row.thumbnailUrl) + '" alt="">' : '') +
         '<span class="badge ' + esc(platformCls) + '">' + esc(platformCls) + '</span>' +
+        '<span class="badge" style="background:' + (isPublished ? 'var(--ok)' : 'var(--accent)') + '">' +
+          (isPublished ? 'Published' : 'Needs review') +
+        '</span>' +
         '<a href="' + esc(row.videoUrl || '') + '" target="_blank" rel="noopener">Watch video ↗</a>' +
+        '<input type="hidden" data-field="thumbnailUrl" value="' + esc(row.thumbnailUrl || '') + '">' +
       '</div>' +
       '<div class="grid">' +
         field('Restaurant name', 'restaurantName', row.restaurantName || '') +
-        field('Location (city, state or full address)', 'normalizedLocation', row.normalizedLocation || row.locationHint || '') +
+        field('Location (city, state or full address) — editing this and saving moves the pin', 'normalizedLocation', row.normalizedLocation || row.locationHint || '') +
         field('Website', 'website', row.website || '') +
         field('Yelp URL', 'yelpUrl', row.yelpUrl || '') +
         field('Menu URL', 'menuUrl', row.menuUrl || '') +
@@ -182,17 +195,17 @@
       '</div>' +
       field('Must-try quote', 'quote', row.quote || '', 'textarea') +
       '<div class="actions">' +
-        '<button class="btn-primary" data-action="approve">Approve &amp; publish</button>' +
+        '<button class="btn-primary" data-action="approve">' + (isPublished ? 'Save changes' : 'Approve &amp; publish') + '</button>' +
         '<span class="status-msg"></span>' +
       '</div>';
 
     card.querySelector('[data-action="approve"]').addEventListener('click', function(){
-      approve(row.id, card);
+      approve(row.id, card, isPublished);
     });
     return card;
   }
 
-  function approve(id, card){
+  function approve(id, card, wasAlreadyPublished){
     var btn = card.querySelector('[data-action="approve"]');
     var status = card.querySelector('.status-msg');
     var payload = { id: id };
@@ -202,7 +215,7 @@
 
     btn.disabled = true;
     status.className = 'status-msg';
-    status.textContent = 'Publishing…';
+    status.textContent = wasAlreadyPublished ? 'Saving…' : 'Publishing…';
 
     fetch(APPROVE_URL, {
       method: 'POST',
@@ -214,8 +227,12 @@
         btn.disabled = false;
         if (res.ok && res.body && res.body.ok) {
           status.className = 'status-msg ok';
-          status.textContent = 'Published — removing from queue…';
-          setTimeout(function(){ card.remove(); }, 900);
+          if (wasAlreadyPublished) {
+            status.textContent = 'Saved — the live map will update shortly.';
+          } else {
+            status.textContent = 'Published — removing from queue…';
+            setTimeout(function(){ card.remove(); }, 900);
+          }
         } else {
           status.className = 'status-msg err';
           status.textContent = (res.body && res.body.message) || 'Something went wrong — check the details and try again.';
