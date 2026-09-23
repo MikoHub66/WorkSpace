@@ -11,7 +11,15 @@
     "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7543281404570799390",
     "date": "2026-08-27",
     "quote": "Late Night Delicious Desert Crapes, Gelato and Cups",
-    "thumbnailUrl": ""
+    "thumbnailUrl": "",
+    "videos": [
+      {
+        "platform": "TikTok",
+        "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7543281404570799390",
+        "date": "2026-08-27",
+        "quote": "Late Night Delicious Desert Crapes, Gelato and Cups"
+      }
+    ]
   },
   {
     "restaurantName": "Icing Bakehouse",
@@ -25,7 +33,15 @@
     "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7555667137394724126",
     "date": "9-29-2025",
     "quote": "The brownies and carrot cake you've been searching for 🤤 #toledoohio #toledo #bakery #419 #detroit",
-    "thumbnailUrl": ""
+    "thumbnailUrl": "",
+    "videos": [
+      {
+        "platform": "tiktok",
+        "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7555667137394724126",
+        "date": "9-29-2025",
+        "quote": "The brownies and carrot cake you've been searching for 🤤 #toledoohio #toledo #bakery #419 #detroit"
+      }
+    ]
   },
   {
     "restaurantName": "The Village Candy Shoppe",
@@ -39,6 +55,14 @@
     "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7623938624253447455",
     "date": "2026-04-01",
     "quote": "Known for its wide variety of nostalgic and specialty candies, including exotic Japanese candies and European chocolates",
-    "thumbnailUrl": ""
+    "thumbnailUrl": "",
+    "videos": [
+      {
+        "platform": "tiktok",
+        "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7623938624253447455",
+        "date": "2026-04-01",
+        "quote": "Known for its wide variety of nostalgic and specialty candies, including exotic Japanese candies and European chocolates"
+      }
+    ]
   }
 ]
