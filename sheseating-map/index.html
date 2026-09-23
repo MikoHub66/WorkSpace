@@ -129,6 +129,8 @@
   .pin.ig .pin-tail{border-top-color:var(--ig);}
   .pin.tt .pin-circle,.pin.tt .pin-tail{border-color:var(--tt);}
   .pin.tt .pin-tail{border-top-color:var(--tt);}
+  .pin.multi .pin-circle,.pin.multi .pin-tail{border-color:var(--pine);}
+  .pin.multi .pin-tail{border-top-color:var(--pine);}
 
   .leaflet-popup-content-wrapper{
     background:var(--surface);
@@ -192,6 +194,7 @@
     <span><span class="dot" style="background:var(--fb)"></span>Facebook</span>
     <span><span class="dot" style="background:var(--ig)"></span>Instagram</span>
     <span><span class="dot" style="background:var(--tt)"></span>TikTok</span>
+    <span><span class="dot" style="background:var(--pine)"></span>Multiple platforms</span>
   </div>
   <div id="count">— restaurants</div>
 </header>
@@ -229,8 +232,18 @@
     if (p.indexOf('tik') === 0 || p === 'tt') return 'tt';
     return 'fb';
   }
+  function pinClass(entry){
+    var videos = Array.isArray(entry.videos) ? entry.videos : [];
+    var distinct = videos.reduce(function(acc, v){
+      var c = platformClass(v.platform);
+      if (acc.indexOf(c) === -1) acc.push(c);
+      return acc;
+    }, []);
+    if (distinct.length > 1) return 'multi';
+    return platformClass(entry.platform);
+  }
   function platformLabel(cls){
-    return { fb: 'Facebook', ig: 'Instagram', tt: 'TikTok' }[cls] || cls;
+    return { fb: 'Facebook', ig: 'Instagram', tt: 'TikTok', multi: 'Multiple platforms' }[cls] || cls;
   }
   function esc(s){
     return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
@@ -350,7 +363,7 @@
     plottable.forEach(function(entry){
       var t = new Date(entry.date).getTime();
       var rank = (!isNaN(t) && spread > 0) ? (t - minTime) / spread : 1;
-      var cls = platformClass(entry.platform);
+      var cls = pinClass(entry);
       var marker = L.marker([entry.lat, entry.lng], { icon: makeIcon(entry, cls, rank) }).addTo(map);
       marker.bindPopup(popupHtml(entry, cls));
       bounds.push([entry.lat, entry.lng]);
