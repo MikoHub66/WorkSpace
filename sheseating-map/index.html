@@ -171,6 +171,11 @@
     border-radius:0 6px 6px 0;
   }
   .popup .links{display:flex;flex-wrap:wrap;gap:6px;}
+  .popup .links + .watch-label{margin-top:10px;}
+  .popup .watch-label{
+    font-size:0.72rem;font-weight:600;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px;
+  }
   .popup .links a{
     font-size:0.78rem;
     font-weight:500;
@@ -335,11 +340,12 @@
     var videos = Array.isArray(entry.videos) && entry.videos.length
       ? entry.videos
       : (entry.videoUrl ? [{ platform: entry.platform, videoUrl: entry.videoUrl }] : []);
+    var watchLinks = '';
     videos.forEach(function(v){
       if (!v.videoUrl) return;
       var vCls = platformClass(v.platform);
       var icon = platformIcon(vCls);
-      links += iconLink(v.videoUrl, icon.fa, icon.mod, 'Watch on ' + platformLabel(vCls));
+      watchLinks += iconLink(v.videoUrl, icon.fa, icon.mod, 'Watch on ' + platformLabel(vCls));
     });
 
     var badges = videos.length
@@ -357,6 +363,7 @@
         '<div class="date">' + esc(fmtDate(entry.date)) + (entry.location ? ' · ' + esc(entry.location) : '') + '</div>' +
         (entry.quote ? '<blockquote>&ldquo;' + esc(entry.quote) + '&rdquo;</blockquote>' : '') +
         '<div class="links">' + links + '</div>' +
+        (watchLinks ? '<div class="watch-label">Watch it now:</div><div class="links">' + watchLinks + '</div>' : '') +
       '</div>';
   }
 
