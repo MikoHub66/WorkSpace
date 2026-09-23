@@ -87,8 +87,10 @@
 
 <script>
 (function(){
-  // Update this once n8n has a public URL (Cloudflare Tunnel etc.) instead of localhost.
-  var N8N_BASE = 'http://localhost:5678';
+  // Cloudflare quick tunnel to n8n. This URL changes each time the tunnel is
+  // restarted (a fresh cloudflared run = a new random subdomain) - update here
+  // when that happens.
+  var N8N_BASE = 'https://microphone-outside-hop-producer.trycloudflare.com';
   var LIST_URL = N8N_BASE + '/webhook/sheseating-review/list';
   var APPROVE_URL = N8N_BASE + '/webhook/sheseating-review/approve';
 
