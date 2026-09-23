@@ -89,7 +89,38 @@
   }
   .legend span{display:flex;align-items:center;gap:5px;}
   .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
-  main{position:relative;flex:1 1 auto;min-height:0;}
+  main{flex:1 1 auto;min-height:0;display:flex;overflow:hidden;}
+  #sidebar{
+    width:300px;flex:0 0 300px;overflow-y:auto;
+    background:var(--surface);border-right:1px solid var(--border);
+  }
+  #sidebar .hint{padding:12px 14px;font-size:0.78rem;color:var(--muted);}
+  .list-item{
+    display:flex;gap:10px;padding:10px 14px;cursor:pointer;
+    border-bottom:1px solid var(--border);
+    transition:background 0.15s;
+  }
+  .list-item:hover,.list-item.active{background:var(--bg);}
+  .li-thumb{
+    width:44px;height:44px;border-radius:8px;flex:0 0 44px;
+    background-size:cover;background-position:center;background-color:var(--bg);
+    display:flex;align-items:center;justify-content:center;color:var(--muted);
+    border:1px solid var(--border);
+  }
+  .li-thumb svg{width:50%;height:50%;}
+  .li-info{min-width:0;flex:1 1 auto;}
+  .li-badges{display:flex;gap:4px;margin-bottom:2px;}
+  .li-badges .dot{width:7px;height:7px;}
+  .li-name{font-weight:600;font-size:0.86rem;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .li-date{font-size:0.72rem;color:var(--muted);margin-bottom:4px;}
+  .li-watch{display:flex;gap:6px;}
+  .li-watch a{color:var(--muted);font-size:0.85rem;}
+  .li-watch a:hover{color:var(--accent-ink);}
+  @media (max-width:760px){
+    main{flex-direction:column;}
+    #sidebar{width:100%;flex:0 0 auto;max-height:32vh;border-right:none;border-bottom:1px solid var(--border);}
+  }
+  #mapWrap{position:relative;flex:1 1 auto;min-height:0;}
   #map{position:absolute;inset:0;background:var(--bg);}
   #banner{
     position:absolute;
@@ -116,6 +147,13 @@
     background-color:var(--surface);
     display:flex;align-items:center;justify-content:center;
     color:var(--muted);
+    transition:transform 0.15s,box-shadow 0.15s;
+    transform-origin:center bottom;
+  }
+  .pin.highlighted{z-index:1000 !important;}
+  .pin.highlighted .pin-circle{
+    transform:scale(1.18);
+    box-shadow:0 0 0 4px var(--accent),var(--shadow);
   }
   .pin-circle svg{width:55%;height:55%;}
   .pin-tail{
@@ -215,8 +253,11 @@
 </header>
 
 <main>
-  <div id="map"></div>
-  <div id="banner"></div>
+  <div id="sidebar"><div class="hint">Loading…</div></div>
+  <div id="mapWrap">
+    <div id="map"></div>
+    <div id="banner"></div>
+  </div>
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -322,6 +363,23 @@
       'title="' + esc(label) + '" aria-label="' + esc(label) + '"><i class="' + faClass + '" aria-hidden="true"></i></a>';
   }
 
+  function entryVideos(entry){
+    return Array.isArray(entry.videos) && entry.videos.length
+      ? entry.videos
+      : (entry.videoUrl ? [{ platform: entry.platform, videoUrl: entry.videoUrl }] : []);
+  }
+
+  function buildWatchLinks(entry){
+    var out = '';
+    entryVideos(entry).forEach(function(v){
+      if (!v.videoUrl) return;
+      var vCls = platformClass(v.platform);
+      var icon = platformIcon(vCls);
+      out += iconLink(v.videoUrl, icon.fa, icon.mod, 'Watch on ' + platformLabel(vCls));
+    });
+    return out;
+  }
+
   function popupHtml(entry, cls){
     var links = '';
     if (entry.website) links += '<a href="' + esc(entry.website) + '" target="_blank" rel="noopener">Website</a>';
@@ -337,16 +395,8 @@
     links += '<a href="https://www.google.com/search?q=' + encodeURIComponent(searchQuery) +
       '" target="_blank" rel="noopener">Google search</a>';
 
-    var videos = Array.isArray(entry.videos) && entry.videos.length
-      ? entry.videos
-      : (entry.videoUrl ? [{ platform: entry.platform, videoUrl: entry.videoUrl }] : []);
-    var watchLinks = '';
-    videos.forEach(function(v){
-      if (!v.videoUrl) return;
-      var vCls = platformClass(v.platform);
-      var icon = platformIcon(vCls);
-      watchLinks += iconLink(v.videoUrl, icon.fa, icon.mod, 'Watch on ' + platformLabel(vCls));
-    });
+    var videos = entryVideos(entry);
+    var watchLinks = buildWatchLinks(entry);
 
     var badges = videos.length
       ? videos.reduce(function(acc, v){
@@ -399,9 +449,67 @@
       var cls = pinClass(entry);
       var marker = L.marker([entry.lat, entry.lng], { icon: makeIcon(entry, cls, rank) }).addTo(map);
       marker.bindPopup(popupHtml(entry, cls));
+      entry.__marker = marker;
       bounds.push([entry.lat, entry.lng]);
     });
     if (bounds.length) map.fitBounds(bounds, { padding: [60, 60], maxZoom: 12 });
+
+    renderSidebar(plottable);
+  }
+
+  var activeListItem = null;
+  function setHighlight(entry, on){
+    if (!entry || !entry.__marker) return;
+    var el = entry.__marker.getElement();
+    if (el) el.classList.toggle('highlighted', on);
+  }
+
+  function renderSidebar(plottable){
+    var sidebar = document.getElementById('sidebar');
+    sidebar.innerHTML = '';
+    if (!plottable.length){
+      sidebar.innerHTML = '<div class="hint">No spots plotted yet.</div>';
+      return;
+    }
+    // Most recently featured first - natural reading order for a list
+    var list = plottable.slice().sort(function(a, b){
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
+    list.forEach(function(entry){
+      var cls = pinClass(entry);
+      var item = document.createElement('div');
+      item.className = 'list-item';
+      var badges = entryVideos(entry).reduce(function(acc, v){
+        var c = platformClass(v.platform);
+        if (acc.indexOf(c) === -1) acc.push(c);
+        return acc;
+      }, []);
+      if (!badges.length) badges = [cls];
+      item.innerHTML =
+        '<div class="li-thumb"' + (entry.thumbnailUrl ? ' style="background-image:url(\'' + entry.thumbnailUrl.replace(/'/g,"%27") + '\')"' : '') + '>' +
+          (entry.thumbnailUrl ? '' : FORK_ICON) +
+        '</div>' +
+        '<div class="li-info">' +
+          '<div class="li-badges">' + badges.map(function(b){ return '<span class="dot" style="background:var(--' + b + ')"></span>'; }).join('') + '</div>' +
+          '<div class="li-name">' + esc(entry.restaurantName) + '</div>' +
+          '<div class="li-date">' + esc(fmtDate(entry.date)) + (entry.location ? ' · ' + esc(entry.location) : '') + '</div>' +
+          '<div class="li-watch">' + buildWatchLinks(entry) + '</div>' +
+        '</div>';
+
+      item.addEventListener('mouseenter', function(){ setHighlight(entry, true); });
+      item.addEventListener('mouseleave', function(){ if (item !== activeListItem) setHighlight(entry, false); });
+      item.addEventListener('click', function(e){
+        if (e.target.closest('a')) return; // let watch-link clicks pass through normally
+        if (activeListItem){ activeListItem.classList.remove('active'); }
+        item.classList.add('active');
+        activeListItem = item;
+        if (entry.__marker){
+          map.setView([entry.lat, entry.lng], Math.max(map.getZoom(), 14), { animate: true });
+          entry.__marker.openPopup();
+        }
+      });
+      sidebar.appendChild(item);
+    });
   }
 
   var EXAMPLE_DATA = [
