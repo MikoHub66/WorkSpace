@@ -22,6 +22,12 @@
         "quote": "Late Night Delicious Desert Crapes, Gelato and Cups"
       },
       {
+        "platform": "facebook",
+        "videoUrl": "https://www.facebook.com/reel/3937119853097725",
+        "date": "",
+        "quote": "Known for their Dubai-style strawberry cups, kunafa crepes, and handmade Italian gelato"
+      },
+      {
         "platform": "instagram",
         "videoUrl": "https://www.instagram.com/p/DN3PSV-3EwG/",
         "date": "",
@@ -74,30 +80,6 @@
         "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7623938624253447455",
         "date": "2026-04-01",
         "quote": "Known for its wide variety of nostalgic and specialty candies, including exotic Japanese candies and European chocolates"
-      }
-    ]
-  },
-  {
-    "restaurantName": "Melt Crepes & Gelato",
-    "platform": "facebook",
-    "lat": 41.6978758,
-    "lng": -83.6449822,
-    "location": "4405 Talmadge Rd, Toledo, OH 43623",
-    "website": "https://www.mapquest.com/us/ohio/melt-crepes-777361170",
-    "yelpUrl": "",
-    "menuUrl": "https://www.seamless.com/menu/melt-crepe--gelato-4405-talmadge-rd-1-toledo/12709456",
-    "grubhubUrl": "",
-    "uberEatsUrl": "",
-    "videoUrl": "https://www.facebook.com/reel/3937119853097725",
-    "date": "",
-    "quote": "Known for their Dubai-style strawberry cups, kunafa crepes, and handmade Italian gelato",
-    "thumbnailUrl": "",
-    "videos": [
-      {
-        "platform": "facebook",
-        "videoUrl": "https://www.facebook.com/reel/3937119853097725",
-        "date": "",
-        "quote": "Known for their Dubai-style strawberry cups, kunafa crepes, and handmade Italian gelato"
       }
     ]
   },
