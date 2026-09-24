@@ -122,6 +122,36 @@
         "videoUrl": "https://www.instagram.com/p/DXZQq5wuIYX/",
         "date": "",
         "quote": "Amazing variety of crispy and soft pierogi with warm, flavorful fillings."
+      },
+      {
+        "platform": "instagram",
+        "videoUrl": "https://www.instagram.com/p/DXZQq5wuIYX/",
+        "date": "",
+        "quote": "Amazing variety of crispy and soft pierogies with flavorful fillings"
+      }
+    ]
+  },
+  {
+    "restaurantName": "Souk",
+    "platform": "instagram",
+    "lat": 41.6529143,
+    "lng": -83.5378173,
+    "location": "Toledo, OH",
+    "website": "https://visittoledo.org/partner/souk-mediterranean-kitchen-bar",
+    "yelpUrl": "",
+    "menuUrl": "http://places.singleplatform.com/souk-mediterranean-kitchen-and-bar/menu",
+    "grubhubUrl": "",
+    "uberEatsUrl": "",
+    "videoUrl": "https://www.instagram.com/p/DXepdqru5Yq/",
+    "date": "",
+    "quote": "Try the Bolognese",
+    "thumbnailUrl": "",
+    "videos": [
+      {
+        "platform": "instagram",
+        "videoUrl": "https://www.instagram.com/p/DXepdqru5Yq/",
+        "date": "",
+        "quote": "Try the Bolognese"
       }
     ]
   }
