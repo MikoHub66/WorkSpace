@@ -98,5 +98,27 @@
         "quote": "Amazing variety of crispy and soft pierogies with flavorful fillings"
       }
     ]
+  },
+  {
+    "restaurantName": "Souk",
+    "platform": "instagram",
+    "lat": 41.6557886,
+    "lng": -83.5405969,
+    "location": "1119 Adams St, Toledo, OH 43604",
+    "website": "https://visittoledo.org/partner/souk-mediterranean-kitchen-bar",
+    "yelpUrl": "https://www.yelp.com/search?cflt=restaurants&find_loc=1119+Adams+St%2C+Toledo%2C+OH+43604",
+    "menuUrl": "https://soukkitchenbar.com/menu",
+    "videoUrl": "https://www.instagram.com/p/DXepdqru5Yq/",
+    "date": "",
+    "quote": "Try the Bolognese",
+    "thumbnailUrl": "",
+    "videos": [
+      {
+        "platform": "instagram",
+        "videoUrl": "https://www.instagram.com/p/DXepdqru5Yq/",
+        "date": "",
+        "quote": "Try the Bolognese"
+      }
+    ]
   }
 ]
