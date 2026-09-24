@@ -233,6 +233,8 @@
   .popup .links a.icon-link.facebook{color:#1877F2;}
   .popup .links a.icon-link.instagram{color:#C13584;}
   .popup .links a.icon-link.yelp{color:#D32323;}
+  .popup .links a.icon-link.grubhub{color:#F63440;}
+  .popup .links a.icon-link.ubereats{color:#06C167;}
   .popup .links a.icon-link.directions{color:var(--pine);}
   .popup .links a.icon-link.reviews{color:#E5A527;}
 </style>
@@ -385,6 +387,8 @@
     var links = '';
     if (entry.website) links += '<a href="' + esc(entry.website) + '" target="_blank" rel="noopener">Website</a>';
     if (entry.menuUrl) links += '<a href="' + esc(entry.menuUrl) + '" target="_blank" rel="noopener">Menu</a>';
+    if (entry.grubhubUrl) links += iconLink(entry.grubhubUrl, 'fa-brands fa-grubhub', 'grubhub', 'Order on Grubhub');
+    if (entry.uberEatsUrl) links += iconLink(entry.uberEatsUrl, 'fa-brands fa-uber', 'ubereats', 'Order on Uber Eats');
     if (entry.yelpUrl) links += iconLink(entry.yelpUrl, 'fa-brands fa-yelp', 'yelp', 'Yelp page');
     if (typeof entry.lat === 'number' && typeof entry.lng === 'number') {
       links += iconLink(
