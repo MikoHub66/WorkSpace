@@ -209,8 +209,8 @@
     border-radius:0 6px 6px 0;
   }
   .popup .links{display:flex;flex-wrap:wrap;gap:6px;}
-  .popup .links + .watch-label{margin-top:10px;}
-  .popup .watch-label{
+  .popup .links + .watch-label,.popup .links + .order-label{margin-top:10px;}
+  .popup .watch-label,.popup .order-label{
     font-size:0.72rem;font-weight:600;color:var(--muted);
     text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px;
   }
@@ -387,8 +387,6 @@
     var links = '';
     if (entry.website) links += '<a href="' + esc(entry.website) + '" target="_blank" rel="noopener">Website</a>';
     if (entry.menuUrl) links += '<a href="' + esc(entry.menuUrl) + '" target="_blank" rel="noopener">Menu</a>';
-    if (entry.grubhubUrl) links += iconLink(entry.grubhubUrl, 'fa-brands fa-grubhub', 'grubhub', 'Order on Grubhub');
-    if (entry.uberEatsUrl) links += iconLink(entry.uberEatsUrl, 'fa-brands fa-uber', 'ubereats', 'Order on Uber Eats');
     if (entry.yelpUrl) links += iconLink(entry.yelpUrl, 'fa-brands fa-yelp', 'yelp', 'Yelp page');
     if (typeof entry.lat === 'number' && typeof entry.lng === 'number') {
       links += iconLink(
@@ -403,6 +401,10 @@
     );
     links += '<a href="https://www.google.com/search?q=' + encodeURIComponent(searchQuery) +
       '" target="_blank" rel="noopener">Google search</a>';
+
+    var orderLinks = '';
+    if (entry.grubhubUrl) orderLinks += iconLink(entry.grubhubUrl, 'fa-brands fa-grubhub', 'grubhub', 'Order on Grubhub');
+    if (entry.uberEatsUrl) orderLinks += iconLink(entry.uberEatsUrl, 'fa-brands fa-uber', 'ubereats', 'Order on Uber Eats');
 
     var videos = entryVideos(entry);
     var watchLinks = buildWatchLinks(entry);
@@ -422,6 +424,7 @@
         '<div class="date">' + esc(fmtDate(entry.date)) + (entry.location ? ' · ' + esc(entry.location) : '') + '</div>' +
         (entry.quote ? '<blockquote>&ldquo;' + esc(entry.quote) + '&rdquo;</blockquote>' : '') +
         '<div class="links">' + links + '</div>' +
+        (orderLinks ? '<div class="order-label">Order now:</div><div class="links">' + orderLinks + '</div>' : '') +
         (watchLinks ? '<div class="watch-label">Watch it now:</div><div class="links">' + watchLinks + '</div>' : '') +
       '</div>';
   }
