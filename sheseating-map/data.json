@@ -42,5 +42,27 @@
         "quote": "The brownies and carrot cake you've been searching for 🤤 #toledoohio #toledo #bakery #419 #detroit"
       }
     ]
+  },
+  {
+    "restaurantName": "The Village Candy Shoppe",
+    "platform": "tiktok",
+    "lat": 41.7188956,
+    "lng": -83.7127729,
+    "location": "Sylvania, OH",
+    "website": "",
+    "yelpUrl": "https://www.yelp.com/biz/the-village-candy-shoppe-sylvania",
+    "menuUrl": "",
+    "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7623938624253447455",
+    "date": "2026-04-01",
+    "quote": "Known for its wide variety of nostalgic and specialty candies, including exotic Japanese candies and European chocolates",
+    "thumbnailUrl": "",
+    "videos": [
+      {
+        "platform": "tiktok",
+        "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7623938624253447455",
+        "date": "2026-04-01",
+        "quote": "Known for its wide variety of nostalgic and specialty candies, including exotic Japanese candies and European chocolates"
+      }
+    ]
   }
 ]
