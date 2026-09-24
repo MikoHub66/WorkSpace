@@ -2,12 +2,12 @@
   {
     "restaurantName": "Melt Crepe & Gelato",
     "platform": "TikTok",
-    "lat": 41.697407,
-    "lng": -83.644962,
-    "location": "4405 Talmadge Rd, Toledo, OH 43623",
-    "website": "https://meltcrepes.com",
-    "yelpUrl": "https://www.yelp.com/biz/melt-crepes-toledo",
-    "menuUrl": "https://meltcrepes.com/order",
+    "lat": 41.6978758,
+    "lng": -83.6449822,
+    "location": "4405 Talmadge Road, Toledo, OH 43623",
+    "website": "",
+    "yelpUrl": "https://www.yelp.com/biz/melt-n-dip-fishers",
+    "menuUrl": "",
     "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7543281404570799390",
     "date": "2026-08-27",
     "quote": "Late Night Delicious Desert Crapes, Gelato and Cups",
@@ -18,62 +18,6 @@
         "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7543281404570799390",
         "date": "2026-08-27",
         "quote": "Late Night Delicious Desert Crapes, Gelato and Cups"
-      },
-      {
-        "platform": "facebook",
-        "videoUrl": "https://www.facebook.com/reel/3937119853097725",
-        "date": "",
-        "quote": "Known for their Dubai-style strawberry cups, kunafa crepes, and handmade Italian gelato"
-      },
-      {
-        "platform": "instagram",
-        "videoUrl": "https://www.instagram.com/p/DN3PSV-3EwG/",
-        "date": "",
-        "quote": "Known for their Dubai chocolate crepes and strawberry cups"
-      }
-    ]
-  },
-  {
-    "restaurantName": "Icing Bakehouse",
-    "platform": "tiktok",
-    "lat": 41.916837,
-    "lng": -83.3994268,
-    "location": "114 W Front St, Monroe, MI 48161",
-    "website": "https://www.icingbakehouse.com",
-    "yelpUrl": "https://m.yelp.com/biz/icing-bakehouse-monroe",
-    "menuUrl": "https://order.online/store/icing-bakehouse-w-front-st-30925827",
-    "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7555667137394724126",
-    "date": "9-29-2025",
-    "quote": "The brownies and carrot cake you've been searching for 🤤 #toledoohio #toledo #bakery #419 #detroit",
-    "thumbnailUrl": "",
-    "videos": [
-      {
-        "platform": "tiktok",
-        "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7555667137394724126",
-        "date": "9-29-2025",
-        "quote": "The brownies and carrot cake you've been searching for 🤤 #toledoohio #toledo #bakery #419 #detroit"
-      }
-    ]
-  },
-  {
-    "restaurantName": "The Village Candy Shoppe",
-    "platform": "tiktok",
-    "lat": 41.7177693,
-    "lng": -83.7032994,
-    "location": "5727 Main St, Sylvania, OH 43560",
-    "website": "https://villagecandyshop.com",
-    "yelpUrl": "https://www.yelp.com/biz/the-village-candy-shoppe-sylvania",
-    "menuUrl": "",
-    "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7623938624253447455",
-    "date": "2026-04-01",
-    "quote": "Known for its wide variety of nostalgic and specialty candies, including exotic Japanese candies and European chocolates",
-    "thumbnailUrl": "",
-    "videos": [
-      {
-        "platform": "tiktok",
-        "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7623938624253447455",
-        "date": "2026-04-01",
-        "quote": "Known for its wide variety of nostalgic and specialty candies, including exotic Japanese candies and European chocolates"
       }
     ]
   }
