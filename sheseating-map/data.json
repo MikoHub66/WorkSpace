@@ -20,5 +20,27 @@
         "quote": "Late Night Delicious Desert Crapes, Gelato and Cups"
       }
     ]
+  },
+  {
+    "restaurantName": "Icing Bakehouse",
+    "platform": "tiktok",
+    "lat": 41.6529143,
+    "lng": -83.5378173,
+    "location": "Toledo, OH",
+    "website": "",
+    "yelpUrl": "https://www.yelp.com/biz/scholars-inn-bakehouse-bloomington-3",
+    "menuUrl": "",
+    "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7555667137394724126",
+    "date": "9-29-2025",
+    "quote": "The brownies and carrot cake you've been searching for 🤤 #toledoohio #toledo #bakery #419 #detroit",
+    "thumbnailUrl": "",
+    "videos": [
+      {
+        "platform": "tiktok",
+        "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7555667137394724126",
+        "date": "9-29-2025",
+        "quote": "The brownies and carrot cake you've been searching for 🤤 #toledoohio #toledo #bakery #419 #detroit"
+      }
+    ]
   }
 ]
