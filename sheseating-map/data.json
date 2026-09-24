@@ -100,5 +100,29 @@
         "quote": "Known for their Dubai-style strawberry cups, kunafa crepes, and handmade Italian gelato"
       }
     ]
+  },
+  {
+    "restaurantName": "Cop Out Pierogies",
+    "platform": "instagram",
+    "lat": 40.4839966,
+    "lng": -79.9489849,
+    "location": "350 Butler St, Pittsburgh, PA 15223",
+    "website": "https://www.tripadvisor.com/Restaurant_Review-g52611-d5081207-Reviews-Cop_Out_Pierogies-Etna_Pennsylvania.html",
+    "yelpUrl": "",
+    "menuUrl": "",
+    "grubhubUrl": "",
+    "uberEatsUrl": "",
+    "videoUrl": "https://www.instagram.com/p/DXZQq5wuIYX/",
+    "date": "",
+    "quote": "Amazing variety of crispy and soft pierogi with warm, flavorful fillings.",
+    "thumbnailUrl": "",
+    "videos": [
+      {
+        "platform": "instagram",
+        "videoUrl": "https://www.instagram.com/p/DXZQq5wuIYX/",
+        "date": "",
+        "quote": "Amazing variety of crispy and soft pierogi with warm, flavorful fillings."
+      }
+    ]
   }
 ]
