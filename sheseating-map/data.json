@@ -98,5 +98,27 @@
         "quote": "Amazing variety of crispy and soft pierogi with warm, flavorful fillings."
       }
     ]
+  },
+  {
+    "restaurantName": "Souk",
+    "platform": "instagram",
+    "lat": 41.6523768,
+    "lng": -83.5388476,
+    "location": "Downtown Toledo, Toledo, OH",
+    "website": "",
+    "yelpUrl": "https://business.yelp.com/data",
+    "menuUrl": "",
+    "videoUrl": "https://www.instagram.com/p/DXepdqru5Yq/",
+    "date": "",
+    "quote": "Try the Bolognese",
+    "thumbnailUrl": "",
+    "videos": [
+      {
+        "platform": "instagram",
+        "videoUrl": "https://www.instagram.com/p/DXepdqru5Yq/",
+        "date": "",
+        "quote": "Try the Bolognese"
+      }
+    ]
   }
 ]
