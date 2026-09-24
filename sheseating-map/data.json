@@ -2,12 +2,14 @@
   {
     "restaurantName": "Melt Crepe & Gelato",
     "platform": "TikTok",
-    "lat": 41.6978758,
-    "lng": -83.6449822,
+    "lat": 41.697407,
+    "lng": -83.644962,
     "location": "4405 Talmadge Rd, Toledo, OH 43623",
     "website": "https://www.mapquest.com/us/ohio/melt-crepes-777361170",
-    "yelpUrl": "",
+    "yelpUrl": "https://business.yelp.com/data",
     "menuUrl": "https://www.seamless.com/menu/melt-crepe--gelato-4405-talmadge-rd-1-toledo/12709456",
+    "grubhubUrl": "",
+    "uberEatsUrl": "",
     "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7543281404570799390",
     "date": "2025-08-27",
     "quote": "Late Night Delicious Desert Crapes, Gelato and Cups",
@@ -18,18 +20,6 @@
         "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7543281404570799390",
         "date": "2025-08-27",
         "quote": "Late Night Delicious Desert Crapes, Gelato and Cups"
-      },
-      {
-        "platform": "facebook",
-        "videoUrl": "https://www.facebook.com/reel/3937119853097725",
-        "date": "",
-        "quote": "Known for their Dubai-style strawberry cups, kunafa crepes, and handmade Italian gelato"
-      },
-      {
-        "platform": "instagram",
-        "videoUrl": "https://www.instagram.com/p/DN3PSV-3EwG/",
-        "date": "",
-        "quote": "Known for their Dubai chocolate crepes and strawberry cups"
       }
     ]
   },
@@ -42,6 +32,8 @@
     "website": "https://www.icingbakehouse.com",
     "yelpUrl": "",
     "menuUrl": "",
+    "grubhubUrl": null,
+    "uberEatsUrl": null,
     "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7555667137394724126",
     "date": "9-29-2025",
     "quote": "The brownies and carrot cake you've been searching for 🤤 #toledoohio #toledo #bakery #419 #detroit",
@@ -64,6 +56,8 @@
     "website": "",
     "yelpUrl": "https://www.yelp.com/biz/the-village-candy-shoppe-sylvania",
     "menuUrl": "",
+    "grubhubUrl": null,
+    "uberEatsUrl": null,
     "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7623938624253447455",
     "date": "2026-04-01",
     "quote": "Known for its wide variety of nostalgic and specialty candies, including exotic Japanese candies and European chocolates",
@@ -74,56 +68,6 @@
         "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7623938624253447455",
         "date": "2026-04-01",
         "quote": "Known for its wide variety of nostalgic and specialty candies, including exotic Japanese candies and European chocolates"
-      }
-    ]
-  },
-  {
-    "restaurantName": "Cop Out Pierogies",
-    "platform": "instagram",
-    "lat": 40.4839966,
-    "lng": -79.9489849,
-    "location": "350 Butler St, Pittsburgh, PA 15223",
-    "website": "https://www.tripadvisor.com/Restaurant_Review-g52611-d5081207-Reviews-Cop_Out_Pierogies-Etna_Pennsylvania.html",
-    "yelpUrl": "",
-    "menuUrl": "https://www.copoutpierogies.com/menu.html",
-    "videoUrl": "https://www.instagram.com/p/DXZQq5wuIYX/",
-    "date": "",
-    "quote": "Amazing variety of crispy and soft pierogi with warm, flavorful fillings.",
-    "thumbnailUrl": "",
-    "videos": [
-      {
-        "platform": "instagram",
-        "videoUrl": "https://www.instagram.com/p/DXZQq5wuIYX/",
-        "date": "",
-        "quote": "Amazing variety of crispy and soft pierogi with warm, flavorful fillings."
-      },
-      {
-        "platform": "instagram",
-        "videoUrl": "https://www.instagram.com/p/DXZQq5wuIYX/",
-        "date": "",
-        "quote": "Amazing variety of crispy and soft pierogies with flavorful fillings"
-      }
-    ]
-  },
-  {
-    "restaurantName": "Souk",
-    "platform": "instagram",
-    "lat": 41.6557886,
-    "lng": -83.5405969,
-    "location": "1119 Adams St, Toledo, OH 43604",
-    "website": "https://visittoledo.org/partner/souk-mediterranean-kitchen-bar",
-    "yelpUrl": "https://www.yelp.com/search?cflt=restaurants&find_loc=1119+Adams+St%2C+Toledo%2C+OH+43604",
-    "menuUrl": "https://soukkitchenbar.com/menu",
-    "videoUrl": "https://www.instagram.com/p/DXepdqru5Yq/",
-    "date": "",
-    "quote": "Try the Bolognese",
-    "thumbnailUrl": "",
-    "videos": [
-      {
-        "platform": "instagram",
-        "videoUrl": "https://www.instagram.com/p/DXepdqru5Yq/",
-        "date": "",
-        "quote": "Try the Bolognese"
       }
     ]
   }
