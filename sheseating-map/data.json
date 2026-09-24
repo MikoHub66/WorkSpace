@@ -46,6 +46,12 @@
         "videoUrl": "https://www.facebook.com/reel/3937119853097725",
         "date": "",
         "quote": "Known for their Dubai-style strawberry cups, kunafa crepes, and handmade Italian gelato"
+      },
+      {
+        "platform": "instagram",
+        "videoUrl": "https://www.instagram.com/p/DN3PSV-3EwG/",
+        "date": "",
+        "quote": "Known for their Dubai chocolate crepes and strawberry cups"
       }
     ]
   },
@@ -68,6 +74,28 @@
         "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7623938624253447455",
         "date": "2026-04-01",
         "quote": "Known for its wide variety of nostalgic and specialty candies, including exotic Japanese candies and European chocolates"
+      }
+    ]
+  },
+  {
+    "restaurantName": "Cop Out Pierogies",
+    "platform": "instagram",
+    "lat": 40.4406968,
+    "lng": -80.0025666,
+    "location": "Pittsburgh, Pennsylvania",
+    "website": "",
+    "yelpUrl": "https://www.yelp.com/search?find_desc=Pierogi+Love&find_loc=Indianapolis%2C+IN",
+    "menuUrl": "",
+    "videoUrl": "https://www.instagram.com/p/DXZQq5wuIYX/",
+    "date": "",
+    "quote": "Amazing variety of crispy and soft pierogi with warm, flavorful fillings.",
+    "thumbnailUrl": "",
+    "videos": [
+      {
+        "platform": "instagram",
+        "videoUrl": "https://www.instagram.com/p/DXZQq5wuIYX/",
+        "date": "",
+        "quote": "Amazing variety of crispy and soft pierogi with warm, flavorful fillings."
       }
     ]
   }
