@@ -64,8 +64,14 @@
   .status-msg{font-size:0.82rem;}
   .status-msg.ok{color:var(--ok);} .status-msg.err{color:var(--danger);}
   #empty, #loading{color:var(--muted);text-align:center;padding:40px 0;}
-  #topBar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:10px;flex-wrap:wrap;}
+  #topBar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap;}
   #topBar h2{font-size:1rem;margin:0;}
+  table.reviewTable{width:100%;border-collapse:collapse;font-size:0.85rem;background:var(--surface);border-radius:10px;overflow:hidden;box-shadow:var(--shadow);}
+  table.reviewTable th,table.reviewTable td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:left;vertical-align:middle;}
+  table.reviewTable th{font-size:0.68rem;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);}
+  table.reviewTable tr:last-child td{border-bottom:none;}
+  table.reviewTable img{width:34px;height:34px;border-radius:6px;object-fit:cover;background:var(--bg);display:block;}
+  table.reviewTable .btn-primary{padding:6px 10px;font-size:0.78rem;}
 </style>
 </head>
 <body>
@@ -90,11 +96,17 @@
   <div id="appArea" style="display:none;">
     <div id="topBar">
       <h2 id="countLabel">Needs review</h2>
-      <button class="btn-ghost" id="refreshBtn">Refresh</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-ghost" id="viewToggleBtn">Table view</button>
+        <button class="btn-primary" id="approveAllBtn">Approve all pending</button>
+        <button class="btn-ghost" id="refreshBtn">Refresh</button>
+      </div>
     </div>
+    <div id="bulkStatus" class="status-msg" style="margin-bottom:10px;"></div>
     <div id="loading" style="display:none;">Loading…</div>
     <div id="empty" style="display:none;">Nothing waiting for review right now.</div>
     <div id="list"></div>
+    <div id="tableWrap" style="display:none;overflow-x:auto;"></div>
   </div>
 </main>
 
@@ -108,6 +120,8 @@
   var APPROVE_URL = N8N_BASE + '/webhook/sheseating-review/approve';
 
   var authHeader = null;
+  var currentRows = [];
+  var viewMode = 'cards';
 
   function esc(s){
     return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
@@ -158,8 +172,8 @@
         document.getElementById('countLabel').textContent =
           needsReviewCount + (needsReviewCount === 1 ? ' needs review' : ' need review') +
           ' · ' + publishedCount + ' published';
-        if (!rows.length){ empty.style.display = 'block'; return; }
-        rows.forEach(function(row){ list.appendChild(renderCard(row)); });
+        currentRows = rows;
+        renderView();
       })
       .catch(function(err){
         loading.style.display = 'none';
@@ -173,6 +187,134 @@
   }
 
   document.getElementById('refreshBtn').addEventListener('click', function(){ loadList(false); });
+
+  function submitApproval(payload){
+    return fetch(APPROVE_URL, {
+      method: 'POST',
+      headers: { 'Authorization': authHeader, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(body){ return { ok: !!(r.ok && body && body.ok), message: body && body.message }; }); })
+      .catch(function(err){ return { ok: false, message: 'Request failed: ' + err.message }; });
+  }
+
+  function rowToPayload(row){
+    return {
+      id: row.id,
+      restaurantName: row.restaurantName || '',
+      normalizedLocation: row.normalizedLocation || row.locationHint || '',
+      website: row.website || '',
+      yelpUrl: row.yelpUrl || '',
+      menuUrl: row.menuUrl || '',
+      videoDate: row.videoDate || '',
+      quote: row.quote || '',
+      thumbnailUrl: row.thumbnailUrl || ''
+    };
+  }
+
+  function renderView(){
+    var list = document.getElementById('list');
+    var tableWrap = document.getElementById('tableWrap');
+    var empty = document.getElementById('empty');
+    list.innerHTML = '';
+    tableWrap.innerHTML = '';
+    if (!currentRows.length){
+      empty.style.display = 'block';
+      list.style.display = 'none';
+      tableWrap.style.display = 'none';
+      return;
+    }
+    empty.style.display = 'none';
+    if (viewMode === 'table'){
+      list.style.display = 'none';
+      tableWrap.style.display = 'block';
+      tableWrap.appendChild(renderTable(currentRows));
+    } else {
+      tableWrap.style.display = 'none';
+      list.style.display = 'block';
+      currentRows.forEach(function(row){ list.appendChild(renderCard(row)); });
+    }
+  }
+
+  function renderTable(rows){
+    var table = document.createElement('table');
+    table.className = 'reviewTable';
+    var head = '<thead><tr><th></th><th>Name</th><th>Platform</th><th>Location</th><th>Date</th><th>Status</th><th></th></tr></thead>';
+    var body = '<tbody>' + rows.map(function(row){
+      var platformCls = (row.platform || 'unknown').toLowerCase();
+      var isPublished = row.status === 'approved';
+      return '<tr>' +
+        '<td>' + (row.thumbnailUrl ? '<img src="' + esc(row.thumbnailUrl) + '" alt="">' : '') + '</td>' +
+        '<td>' + esc(row.restaurantName || '(no name yet)') + '</td>' +
+        '<td><span class="badge ' + esc(platformCls) + '">' + esc(platformCls) + '</span></td>' +
+        '<td>' + esc(row.normalizedLocation || row.locationHint || '') + '</td>' +
+        '<td>' + esc(row.videoDate || '') + '</td>' +
+        '<td class="statusCell"><span class="badge status" style="background:' + (isPublished ? 'var(--ok)' : 'var(--accent)') + '">' + (isPublished ? 'Published' : 'Needs review') + '</span></td>' +
+        '<td><button class="btn-primary" data-action="tableApprove">' + (isPublished ? 'Save' : 'Approve') + '</button></td>' +
+      '</tr>';
+    }).join('') + '</tbody>';
+    table.innerHTML = head + body;
+    var buttons = table.querySelectorAll('[data-action="tableApprove"]');
+    buttons.forEach(function(btn, i){
+      btn.addEventListener('click', function(){
+        var row = rows[i];
+        var tr = btn.closest('tr');
+        var wasAlreadyPublished = row.status === 'approved';
+        btn.disabled = true;
+        btn.textContent = '…';
+        submitApproval(rowToPayload(row)).then(function(res){
+          btn.disabled = false;
+          if (res.ok){
+            tr.querySelector('.statusCell').innerHTML = '<span class="badge status" style="background:var(--ok)">Published</span>';
+            btn.textContent = 'Save';
+          } else {
+            btn.textContent = wasAlreadyPublished ? 'Save' : 'Approve';
+            alert(res.message || ('Approve failed for ' + (row.restaurantName || row.id)));
+          }
+        });
+      });
+    });
+    return table;
+  }
+
+  document.getElementById('viewToggleBtn').addEventListener('click', function(){
+    viewMode = (viewMode === 'cards') ? 'table' : 'cards';
+    document.getElementById('viewToggleBtn').textContent = (viewMode === 'cards') ? 'Table view' : 'Card view';
+    renderView();
+  });
+
+  document.getElementById('approveAllBtn').addEventListener('click', function(){
+    var pending = currentRows.filter(function(r){ return r.status === 'needs_review'; });
+    var bulkStatus = document.getElementById('bulkStatus');
+    if (!pending.length){
+      bulkStatus.className = 'status-msg';
+      bulkStatus.textContent = 'Nothing pending to approve.';
+      return;
+    }
+    if (!confirm('Publish all ' + pending.length + ' pending item(s) to the live map as-is?')) return;
+    var btn = document.getElementById('approveAllBtn');
+    btn.disabled = true;
+    var done = 0, failed = [];
+    function next(i){
+      if (i >= pending.length){
+        btn.disabled = false;
+        bulkStatus.className = failed.length ? 'status-msg err' : 'status-msg ok';
+        bulkStatus.textContent = failed.length
+          ? ('Approved ' + done + ' of ' + pending.length + '. Failed: ' + failed.join(', '))
+          : ('Approved all ' + done + ' pending item(s).');
+        loadList(false);
+        return;
+      }
+      var row = pending[i];
+      bulkStatus.className = 'status-msg';
+      bulkStatus.textContent = 'Approving ' + (i + 1) + ' of ' + pending.length + '…';
+      submitApproval(rowToPayload(row)).then(function(res){
+        if (res.ok) done++; else failed.push(row.restaurantName || ('#' + row.id));
+        next(i + 1);
+      });
+    }
+    next(0);
+  });
 
   function field(labelText, key, value, type){
     return '<div>' +
@@ -252,32 +394,21 @@
     status.className = 'status-msg';
     status.textContent = wasAlreadyPublished ? 'Saving…' : 'Publishing…';
 
-    fetch(APPROVE_URL, {
-      method: 'POST',
-      headers: { 'Authorization': authHeader, 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(body){ return { ok: r.ok, body: body }; }); })
-      .then(function(res){
-        btn.disabled = false;
-        if (res.ok && res.body && res.body.ok) {
-          status.className = 'status-msg ok';
-          if (wasAlreadyPublished) {
-            status.textContent = 'Saved — the live map will update shortly.';
-          } else {
-            status.textContent = 'Published — removing from queue…';
-            setTimeout(function(){ card.remove(); }, 900);
-          }
+    submitApproval(payload).then(function(res){
+      btn.disabled = false;
+      if (res.ok) {
+        status.className = 'status-msg ok';
+        if (wasAlreadyPublished) {
+          status.textContent = 'Saved — the live map will update shortly.';
         } else {
-          status.className = 'status-msg err';
-          status.textContent = (res.body && res.body.message) || 'Something went wrong — check the details and try again.';
+          status.textContent = 'Published — removing from queue…';
+          setTimeout(function(){ card.remove(); }, 900);
         }
-      })
-      .catch(function(err){
-        btn.disabled = false;
+      } else {
         status.className = 'status-msg err';
-        status.textContent = 'Request failed: ' + err.message;
-      });
+        status.textContent = res.message || 'Something went wrong — check the details and try again.';
+      }
+    });
   }
 })();
 </script>
