@@ -24,11 +24,11 @@
   {
     "restaurantName": "Icing Bakehouse",
     "platform": "tiktok",
-    "lat": 41.6529143,
-    "lng": -83.5378173,
-    "location": "Toledo, OH",
-    "website": "",
-    "yelpUrl": "https://www.yelp.com/biz/scholars-inn-bakehouse-bloomington-3",
+    "lat": 41.916837,
+    "lng": -83.3994268,
+    "location": "114 W Front St, Monroe, MI 48161",
+    "website": "https://www.icingbakehouse.com",
+    "yelpUrl": "",
     "menuUrl": "",
     "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7555667137394724126",
     "date": "9-29-2025",
@@ -40,18 +40,6 @@
         "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7555667137394724126",
         "date": "9-29-2025",
         "quote": "The brownies and carrot cake you've been searching for 🤤 #toledoohio #toledo #bakery #419 #detroit"
-      },
-      {
-        "platform": "facebook",
-        "videoUrl": "https://www.facebook.com/reel/3937119853097725",
-        "date": "",
-        "quote": "Known for their Dubai-style strawberry cups, kunafa crepes, and handmade Italian gelato"
-      },
-      {
-        "platform": "instagram",
-        "videoUrl": "https://www.instagram.com/p/DN3PSV-3EwG/",
-        "date": "",
-        "quote": "Known for their Dubai chocolate crepes and strawberry cups"
       }
     ]
   },
@@ -74,6 +62,34 @@
         "videoUrl": "https://www.tiktok.com/@sheseatingit/video/7623938624253447455",
         "date": "2026-04-01",
         "quote": "Known for its wide variety of nostalgic and specialty candies, including exotic Japanese candies and European chocolates"
+      }
+    ]
+  },
+  {
+    "restaurantName": "Melt Crepes & Gelato",
+    "platform": "facebook",
+    "lat": 41.6529143,
+    "lng": -83.5378173,
+    "location": "Toledo, OH",
+    "website": "",
+    "yelpUrl": "https://www.yelp.com/biz/melt-crepes-toledo",
+    "menuUrl": "",
+    "videoUrl": "https://www.facebook.com/reel/3937119853097725",
+    "date": "",
+    "quote": "Known for their Dubai-style strawberry cups, kunafa crepes, and handmade Italian gelato",
+    "thumbnailUrl": "",
+    "videos": [
+      {
+        "platform": "facebook",
+        "videoUrl": "https://www.facebook.com/reel/3937119853097725",
+        "date": "",
+        "quote": "Known for their Dubai-style strawberry cups, kunafa crepes, and handmade Italian gelato"
+      },
+      {
+        "platform": "instagram",
+        "videoUrl": "https://www.instagram.com/p/DN3PSV-3EwG/",
+        "date": "",
+        "quote": "Known for their Dubai chocolate crepes and strawberry cups"
       }
     ]
   },
