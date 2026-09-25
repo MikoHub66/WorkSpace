@@ -74,6 +74,7 @@
   table.reviewTable .btn-primary{padding:6px 10px;font-size:0.78rem;white-space:nowrap;}
   table.reviewTable input{width:130px;padding:5px 6px;font-size:0.78rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--ink);}
   table.reviewTable td{white-space:nowrap;}
+  table.reviewTable td.muted-cell{color:var(--muted);text-align:center;}
 </style>
 </head>
 <body>
@@ -244,49 +245,99 @@
     return '<input data-field="' + key + '" value="' + esc(value || '') + '" placeholder="' + esc(placeholder || '') + '">';
   }
 
+  var DEFAULT_PLATFORMS = ['facebook', 'tiktok', 'instagram'];
+
+  function platformKey(p){
+    p = (p || '').toLowerCase();
+    if (p.indexOf('face') === 0 || p === 'fb') return 'facebook';
+    if (p.indexOf('insta') === 0 || p === 'ig') return 'instagram';
+    if (p.indexOf('tik') === 0 || p === 'tt') return 'tiktok';
+    return p || 'other';
+  }
+
+  function platformColumnsForRows(rows){
+    var seen = {};
+    DEFAULT_PLATFORMS.forEach(function(p){ seen[p] = true; });
+    rows.forEach(function(r){ seen[platformKey(r.platform)] = true; });
+    return Object.keys(seen);
+  }
+
+  function groupKey(row){
+    var name = (row.restaurantName || '').trim().toLowerCase();
+    return name || ('__row_' + row.id);
+  }
+
+  function groupRows(rows){
+    var map = {}, order = [];
+    rows.forEach(function(row){
+      var key = groupKey(row);
+      if (!map[key]){ map[key] = []; order.push(key); }
+      map[key].push(row);
+    });
+    return order.map(function(key){ return map[key]; });
+  }
+
   function renderTable(rows){
+    var groups = groupRows(rows);
+    var platforms = platformColumnsForRows(rows);
     var table = document.createElement('table');
     table.className = 'reviewTable';
-    var head = '<thead><tr><th></th><th>Name</th><th>Location</th><th>Website</th><th>Yelp</th><th>Menu</th><th>Grubhub</th><th>Uber Eats</th><th>Date</th><th>Status</th><th></th></tr></thead>';
-    var body = '<tbody>' + rows.map(function(row){
-      var platformCls = (row.platform || 'unknown').toLowerCase();
-      var isPublished = row.status === 'approved';
-      return '<tr data-id="' + row.id + '">' +
-        '<td>' + (row.thumbnailUrl ? '<img src="' + esc(row.thumbnailUrl) + '" alt="">' : '') +
-          '<div><span class="badge ' + esc(platformCls) + '">' + esc(platformCls) + '</span></div></td>' +
-        '<td>' + tinput('restaurantName', row.restaurantName, 'name') + '</td>' +
-        '<td>' + tinput('normalizedLocation', row.normalizedLocation || row.locationHint, 'city, state') + '</td>' +
-        '<td>' + tinput('website', row.website, 'website') + '</td>' +
-        '<td>' + tinput('yelpUrl', row.yelpUrl, 'yelp') + '</td>' +
-        '<td>' + tinput('menuUrl', row.menuUrl, 'menu') + '</td>' +
-        '<td>' + tinput('grubhubUrl', row.grubhubUrl, 'grubhub') + '</td>' +
-        '<td>' + tinput('uberEatsUrl', row.uberEatsUrl, 'uber eats') + '</td>' +
-        '<td>' + tinput('videoDate', row.videoDate, 'date') + '</td>' +
-        '<td class="statusCell"><span class="badge status" style="background:' + (isPublished ? 'var(--ok)' : 'var(--accent)') + '">' + (isPublished ? 'Published' : 'Needs review') + '</span></td>' +
-        '<td><button class="btn-primary" data-action="tableApprove">' + (isPublished ? 'Save' : 'Approve') + '</button></td>' +
+    var platformHeaders = platforms.map(function(p){
+      return '<th>' + esc(p.charAt(0).toUpperCase() + p.slice(1)) + '</th>';
+    }).join('');
+    var head = '<thead><tr><th></th><th>Restaurant</th><th>Location</th><th>Website</th><th>Yelp</th><th>Menu</th><th>Grubhub</th><th>Uber Eats</th>' +
+      platformHeaders + '<th>Status</th><th></th></tr></thead>';
+
+    var body = '<tbody>' + groups.map(function(group){
+      var primary = group.slice().sort(function(a, b){
+        return new Date(b.videoDate).getTime() - new Date(a.videoDate).getTime();
+      })[0];
+      var allApproved = group.every(function(r){ return r.status === 'approved'; });
+      var platformCells = platforms.map(function(p){
+        var match = group.find(function(r){ return platformKey(r.platform) === p; });
+        if (!match || !match.videoUrl) return '<td class="muted-cell">—</td>';
+        return '<td><a href="' + esc(match.videoUrl) + '" target="_blank" rel="noopener">open</a></td>';
+      }).join('');
+      return '<tr>' +
+        '<td>' + (primary.thumbnailUrl ? '<img src="' + esc(primary.thumbnailUrl) + '" alt="">' : '') + '</td>' +
+        '<td>' + tinput('restaurantName', primary.restaurantName, 'name') + '</td>' +
+        '<td>' + tinput('normalizedLocation', primary.normalizedLocation || primary.locationHint, 'city, state') + '</td>' +
+        '<td>' + tinput('website', primary.website, 'website') + '</td>' +
+        '<td>' + tinput('yelpUrl', primary.yelpUrl, 'yelp') + '</td>' +
+        '<td>' + tinput('menuUrl', primary.menuUrl, 'menu') + '</td>' +
+        '<td>' + tinput('grubhubUrl', primary.grubhubUrl, 'grubhub') + '</td>' +
+        '<td>' + tinput('uberEatsUrl', primary.uberEatsUrl, 'uber eats') + '</td>' +
+        platformCells +
+        '<td class="statusCell"><span class="badge status" style="background:' + (allApproved ? 'var(--ok)' : 'var(--accent)') + '">' + (allApproved ? 'Published' : 'Needs review') + '</span></td>' +
+        '<td><button class="btn-primary" data-action="tableApprove">' + (allApproved ? 'Save' : 'Approve') + '</button></td>' +
       '</tr>';
     }).join('') + '</tbody>';
     table.innerHTML = head + body;
-    var buttons = table.querySelectorAll('[data-action="tableApprove"]');
-    buttons.forEach(function(btn, i){
+
+    var trs = table.querySelectorAll('tbody tr');
+    trs.forEach(function(tr, i){
+      var group = groups[i];
+      var btn = tr.querySelector('[data-action="tableApprove"]');
+      var wasAllApproved = group.every(function(r){ return r.status === 'approved'; });
       btn.addEventListener('click', function(){
-        var row = rows[i];
-        var tr = btn.closest('tr');
-        var wasAlreadyPublished = row.status === 'approved';
-        var payload = { id: row.id, thumbnailUrl: row.thumbnailUrl || '', quote: row.quote || '' };
+        var shared = {};
         tr.querySelectorAll('[data-field]').forEach(function(el){
-          payload[el.getAttribute('data-field')] = el.value;
+          shared[el.getAttribute('data-field')] = el.value;
         });
         btn.disabled = true;
         btn.textContent = '…';
-        submitApproval(payload).then(function(res){
+        Promise.all(group.map(function(row){
+          var payload = Object.assign(rowToPayload(row), shared, { id: row.id });
+          return submitApproval(payload);
+        })).then(function(results){
           btn.disabled = false;
-          if (res.ok){
+          var allOk = results.every(function(r){ return r.ok; });
+          if (allOk){
             tr.querySelector('.statusCell').innerHTML = '<span class="badge status" style="background:var(--ok)">Published</span>';
             btn.textContent = 'Save';
           } else {
-            btn.textContent = wasAlreadyPublished ? 'Save' : 'Approve';
-            alert(res.message || ('Approve failed for ' + (row.restaurantName || row.id)));
+            btn.textContent = wasAllApproved ? 'Save' : 'Approve';
+            alert('Some videos in this group failed to save for ' + (group[0].restaurantName || 'this restaurant') + ' — check the details and try again.');
           }
         });
       });
