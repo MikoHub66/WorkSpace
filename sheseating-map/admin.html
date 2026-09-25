@@ -213,7 +213,9 @@
       uberEatsUrl: row.uberEatsUrl || '',
       videoDate: row.videoDate || '',
       quote: row.quote || '',
-      thumbnailUrl: row.thumbnailUrl || ''
+      thumbnailUrl: row.thumbnailUrl || '',
+      platform: row.platform || '',
+      videoUrl: row.videoUrl || ''
     };
   }
 
@@ -295,8 +297,9 @@
       var allApproved = group.every(function(r){ return r.status === 'approved'; });
       var platformCells = platforms.map(function(p){
         var match = group.find(function(r){ return platformKey(r.platform) === p; });
-        if (!match || !match.videoUrl) return '<td class="muted-cell">—</td>';
-        return '<td><a href="' + esc(match.videoUrl) + '" target="_blank" rel="noopener">open</a></td>';
+        var url = match ? (match.videoUrl || '') : '';
+        var rowId = match ? match.id : '';
+        return '<td><input data-platform="' + esc(p) + '" data-row-id="' + esc(rowId) + '" value="' + esc(url) + '" placeholder="add link"></td>';
       }).join('');
       return '<tr>' +
         '<td>' + (primary.thumbnailUrl ? '<img src="' + esc(primary.thumbnailUrl) + '" alt="">' : '') + '</td>' +
@@ -324,17 +327,32 @@
         tr.querySelectorAll('[data-field]').forEach(function(el){
           shared[el.getAttribute('data-field')] = el.value;
         });
+
+        var payloads = [];
+        tr.querySelectorAll('[data-platform]').forEach(function(inp){
+          var url = inp.value.trim();
+          if (!url) return; // leave untouched - don't delete a row by clearing its link here
+          var rowId = inp.getAttribute('data-row-id');
+          var sourceRow = rowId ? group.find(function(r){ return String(r.id) === rowId; }) : null;
+          var base = sourceRow ? rowToPayload(sourceRow) : { quote: '', videoDate: '', thumbnailUrl: '' };
+          var payload = Object.assign(base, shared, { platform: inp.getAttribute('data-platform'), videoUrl: url });
+          if (rowId) { payload.id = rowId; } else { delete payload.id; }
+          payloads.push(payload);
+        });
+        if (!payloads.length){
+          alert('Add at least one video link (Facebook, TikTok, Instagram, etc.) before approving.');
+          return;
+        }
+
         btn.disabled = true;
         btn.textContent = '…';
-        Promise.all(group.map(function(row){
-          var payload = Object.assign(rowToPayload(row), shared, { id: row.id });
-          return submitApproval(payload);
-        })).then(function(results){
+        Promise.all(payloads.map(submitApproval)).then(function(results){
           btn.disabled = false;
           var allOk = results.every(function(r){ return r.ok; });
           if (allOk){
             tr.querySelector('.statusCell').innerHTML = '<span class="badge status" style="background:var(--ok)">Published</span>';
             btn.textContent = 'Save';
+            loadList(false);
           } else {
             btn.textContent = wasAllApproved ? 'Save' : 'Approve';
             alert('Some videos in this group failed to save for ' + (group[0].restaurantName || 'this restaurant') + ' — check the details and try again.');
