@@ -75,6 +75,11 @@
   table.reviewTable input{width:130px;padding:5px 6px;font-size:0.78rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--ink);}
   table.reviewTable td{white-space:nowrap;}
   table.reviewTable td.muted-cell{color:var(--muted);text-align:center;}
+  .thumb-edit{display:flex;gap:12px;align-items:flex-start;margin:6px 0 4px;}
+  .thumb-preview{width:64px;height:64px;border-radius:8px;object-fit:cover;background:var(--bg);border:1px solid var(--border);flex:0 0 64px;}
+  .thumb-controls{flex:1 1 auto;min-width:0;}
+  .thumb-controls label{display:block;font-size:0.78rem;color:var(--muted);margin:0 0 4px;}
+  .thumb-controls .thumb-url-input{width:100%;margin-bottom:6px;}
 </style>
 </head>
 <body>
@@ -435,7 +440,15 @@
       '<div class="card-body">' +
         '<div class="row-head">' +
           '<a href="' + esc(row.videoUrl || '') + '" target="_blank" rel="noopener">Watch video ↗</a>' +
-          '<input type="hidden" data-field="thumbnailUrl" value="' + esc(row.thumbnailUrl || '') + '">' +
+        '</div>' +
+        '<div class="thumb-edit">' +
+          '<img class="thumb-preview"' + (row.thumbnailUrl ? ' src="' + esc(row.thumbnailUrl) + '"' : ' style="visibility:hidden"') + ' alt="">' +
+          '<div class="thumb-controls">' +
+            '<label>Thumbnail image</label>' +
+            '<input type="hidden" data-field="thumbnailUrl" value="' + esc(row.thumbnailUrl || '') + '">' +
+            '<input type="text" class="thumb-url-input" placeholder="Paste a new image URL to replace it">' +
+            '<button type="button" class="btn-ghost thumb-clear-btn">Clear thumbnail</button>' +
+          '</div>' +
         '</div>' +
         '<div class="grid">' +
           field('Restaurant name', 'restaurantName', row.restaurantName || '') +
@@ -467,6 +480,23 @@
       e.stopPropagation();
       approve(row.id, card, isPublished);
     });
+
+    var thumbHidden = card.querySelector('[data-field="thumbnailUrl"]');
+    var thumbUrlInput = card.querySelector('.thumb-url-input');
+    var thumbPreview = card.querySelector('.thumb-preview');
+    thumbUrlInput.addEventListener('input', function(){
+      var v = thumbUrlInput.value.trim();
+      thumbHidden.value = v;
+      if (v) { thumbPreview.src = v; thumbPreview.style.visibility = 'visible'; }
+      else { thumbPreview.removeAttribute('src'); thumbPreview.style.visibility = 'hidden'; }
+    });
+    card.querySelector('.thumb-clear-btn').addEventListener('click', function(){
+      thumbHidden.value = '';
+      thumbUrlInput.value = '';
+      thumbPreview.removeAttribute('src');
+      thumbPreview.style.visibility = 'hidden';
+    });
+
     return card;
   }
 
