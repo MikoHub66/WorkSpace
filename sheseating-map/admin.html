@@ -38,6 +38,10 @@
   .btn-primary{background:var(--accent);color:#fff;}
   .btn-primary:disabled{opacity:0.5;cursor:default;}
   .btn-ghost{background:transparent;border-color:var(--border);color:var(--ink);}
+  .btn-danger{background:transparent;border-color:var(--danger);color:var(--danger);}
+  .btn-danger:disabled{opacity:0.5;cursor:default;}
+  .actions .btn-danger{margin-left:auto;}
+  table.reviewTable .btn-danger{padding:6px 10px;font-size:0.78rem;white-space:nowrap;}
   #loginError{color:var(--danger);font-size:0.85rem;margin-top:10px;display:none;}
 
   .card-head{
@@ -126,6 +130,7 @@
   var N8N_BASE = 'https://picture-awards-powell-focus.trycloudflare.com';
   var LIST_URL = N8N_BASE + '/webhook/sheseating-review/list';
   var APPROVE_URL = N8N_BASE + '/webhook/sheseating-review/approve';
+  var DELETE_URL = N8N_BASE + '/webhook/sheseating-review/delete';
 
   var authHeader = null;
   var currentRows = [];
@@ -206,6 +211,18 @@
       .catch(function(err){ return { ok: false, message: 'Request failed: ' + err.message }; });
   }
 
+  // Marks the row(s) "removed" in n8n (hidden from this page and the map, but still
+  // recoverable in the Data Table) and republishes data.json.
+  function submitDelete(ids){
+    return fetch(DELETE_URL, {
+      method: 'POST',
+      headers: { 'Authorization': authHeader, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: ids })
+    })
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(body){ return { ok: !!(r.ok && body && body.ok), message: body && body.message }; }); })
+      .catch(function(err){ return { ok: false, message: 'Request failed: ' + err.message }; });
+  }
+
   function rowToPayload(row){
     return {
       id: row.id,
@@ -216,6 +233,7 @@
       menuUrl: row.menuUrl || '',
       grubhubUrl: row.grubhubUrl || '',
       uberEatsUrl: row.uberEatsUrl || '',
+      doordashUrl: row.doordashUrl || '',
       videoDate: row.videoDate || '',
       quote: row.quote || '',
       thumbnailUrl: row.thumbnailUrl || '',
@@ -292,8 +310,8 @@
     var platformHeaders = platforms.map(function(p){
       return '<th>' + esc(p.charAt(0).toUpperCase() + p.slice(1)) + '</th>';
     }).join('');
-    var head = '<thead><tr><th></th><th>Restaurant</th><th>Location</th><th>Website</th><th>Yelp</th><th>Menu</th><th>Grubhub</th><th>Uber Eats</th>' +
-      platformHeaders + '<th>Status</th><th></th></tr></thead>';
+    var head = '<thead><tr><th></th><th>Restaurant</th><th>Location</th><th>Website</th><th>Yelp</th><th>Menu</th><th>Grubhub</th><th>Uber Eats</th><th>DoorDash</th>' +
+      platformHeaders + '<th>Status</th><th></th><th></th></tr></thead>';
 
     var body = '<tbody>' + groups.map(function(group){
       var primary = group.slice().sort(function(a, b){
@@ -315,9 +333,11 @@
         '<td>' + tinput('menuUrl', primary.menuUrl, 'menu') + '</td>' +
         '<td>' + tinput('grubhubUrl', primary.grubhubUrl, 'grubhub') + '</td>' +
         '<td>' + tinput('uberEatsUrl', primary.uberEatsUrl, 'uber eats') + '</td>' +
+        '<td>' + tinput('doordashUrl', primary.doordashUrl, 'doordash') + '</td>' +
         platformCells +
         '<td class="statusCell"><span class="badge status" style="background:' + (allApproved ? 'var(--ok)' : 'var(--accent)') + '">' + (allApproved ? 'Published' : 'Needs review') + '</span></td>' +
         '<td><button class="btn-primary" data-action="tableApprove">' + (allApproved ? 'Save' : 'Approve') + '</button></td>' +
+        '<td><button class="btn-danger" data-action="tableDelete">Remove</button></td>' +
       '</tr>';
     }).join('') + '</tbody>';
     table.innerHTML = head + body;
@@ -361,6 +381,23 @@
           } else {
             btn.textContent = wasAllApproved ? 'Save' : 'Approve';
             alert('Some videos in this group failed to save for ' + (group[0].restaurantName || 'this restaurant') + ' — check the details and try again.');
+          }
+        });
+      });
+
+      var delBtn = tr.querySelector('[data-action="tableDelete"]');
+      delBtn.addEventListener('click', function(){
+        var name = group[0].restaurantName || 'this restaurant';
+        var what = group.length === 1 ? '"' + name + '"' : 'all ' + group.length + ' videos for "' + name + '"';
+        if (!confirm('Remove ' + what + ' from the map and this list?')) return;
+        delBtn.disabled = true;
+        delBtn.textContent = '…';
+        submitDelete(group.map(function(r){ return r.id; })).then(function(res){
+          if (res.ok) { tr.remove(); loadList(false); }
+          else {
+            delBtn.disabled = false;
+            delBtn.textContent = 'Remove';
+            alert(res.message || 'Could not remove ' + name + ' — try again.');
           }
         });
       });
@@ -458,12 +495,14 @@
           field('Menu URL', 'menuUrl', row.menuUrl || '') +
           field('Grubhub URL', 'grubhubUrl', row.grubhubUrl || '') +
           field('Uber Eats URL', 'uberEatsUrl', row.uberEatsUrl || '') +
+          field('DoorDash URL', 'doordashUrl', row.doordashUrl || '') +
           field('Video date', 'videoDate', row.videoDate || '') +
         '</div>' +
         field('Must-try quote', 'quote', row.quote || '', 'textarea') +
         '<div class="actions">' +
           '<button class="btn-primary" data-action="approve">' + (isPublished ? 'Save changes' : 'Approve &amp; publish') + '</button>' +
           '<span class="status-msg"></span>' +
+          '<button class="btn-danger" data-action="delete">Remove from map</button>' +
         '</div>' +
       '</div>';
 
@@ -479,6 +518,10 @@
     card.querySelector('[data-action="approve"]').addEventListener('click', function(e){
       e.stopPropagation();
       approve(row.id, card, isPublished);
+    });
+    card.querySelector('[data-action="delete"]').addEventListener('click', function(e){
+      e.stopPropagation();
+      removeRow(row, card);
     });
 
     var thumbHidden = card.querySelector('[data-field="thumbnailUrl"]');
@@ -498,6 +541,27 @@
     });
 
     return card;
+  }
+
+  function removeRow(row, card){
+    if (!confirm('Remove "' + (row.restaurantName || 'this video') + '" from the map and this list?')) return;
+    var btn = card.querySelector('[data-action="delete"]');
+    var status = card.querySelector('.status-msg');
+    btn.disabled = true;
+    status.className = 'status-msg';
+    status.textContent = 'Removing…';
+    submitDelete([row.id]).then(function(res){
+      if (res.ok) {
+        status.className = 'status-msg ok';
+        status.textContent = 'Removed — the live map will update shortly.';
+        currentRows = currentRows.filter(function(r){ return r.id !== row.id; });
+        setTimeout(function(){ card.remove(); }, 900);
+      } else {
+        btn.disabled = false;
+        status.className = 'status-msg err';
+        status.textContent = res.message || 'Could not remove — try again.';
+      }
+    });
   }
 
   function approve(id, card, wasAlreadyPublished){

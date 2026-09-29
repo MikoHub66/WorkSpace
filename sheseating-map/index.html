@@ -235,6 +235,7 @@
   .popup .links a.icon-link.yelp{color:#D32323;}
   .popup .links a.icon-link.grubhub{color:#F63440;}
   .popup .links a.icon-link.ubereats{color:#06C167;}
+  .popup .links a.icon-link.doordash{color:#FF3008;}
   .popup .links a.icon-link.directions{color:var(--pine);}
   .popup .links a.icon-link.reviews{color:#E5A527;}
 </style>
@@ -405,6 +406,8 @@
     var orderLinks = '';
     if (entry.grubhubUrl) orderLinks += iconLink(entry.grubhubUrl, 'fa-brands fa-grubhub', 'grubhub', 'Order on Grubhub');
     if (entry.uberEatsUrl) orderLinks += iconLink(entry.uberEatsUrl, 'fa-brands fa-uber', 'ubereats', 'Order on Uber Eats');
+    // Font Awesome has no DoorDash brand icon - a bag in DoorDash red, with the tooltip naming it
+    if (entry.doordashUrl) orderLinks += iconLink(entry.doordashUrl, 'fa-solid fa-bag-shopping', 'doordash', 'Order on DoorDash');
 
     var videos = entryVideos(entry);
     var watchLinks = buildWatchLinks(entry);
