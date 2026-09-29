@@ -41,6 +41,11 @@
   .btn-danger{background:transparent;border-color:var(--danger);color:var(--danger);}
   .btn-danger:disabled{opacity:0.5;cursor:default;}
   .actions .btn-danger{margin-left:auto;}
+  input.filled, textarea.filled{outline:2px solid var(--ok);outline-offset:1px;}
+  .fill-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0 2px;padding:10px 12px;border:1px dashed var(--border);border-radius:10px;}
+  .fill-bar .hint{font-size:0.78rem;color:var(--muted);flex:1 1 220px;}
+  .fill-notes{font-size:0.8rem;color:var(--muted);margin-top:6px;}
+  .fill-notes div{margin-top:2px;}
   table.reviewTable .btn-danger{padding:6px 10px;font-size:0.78rem;white-space:nowrap;}
   #loginError{color:var(--danger);font-size:0.85rem;margin-top:10px;display:none;}
 
@@ -131,6 +136,7 @@
   var LIST_URL = N8N_BASE + '/webhook/sheseating-review/list';
   var APPROVE_URL = N8N_BASE + '/webhook/sheseating-review/approve';
   var DELETE_URL = N8N_BASE + '/webhook/sheseating-review/delete';
+  var ENRICH_URL = N8N_BASE + '/webhook/sheseating-review/enrich';
 
   var authHeader = null;
   var currentRows = [];
@@ -221,6 +227,32 @@
     })
       .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(body){ return { ok: !!(r.ok && body && body.ok), message: body && body.message }; }); })
       .catch(function(err){ return { ok: false, message: 'Request failed: ' + err.message }; });
+  }
+
+  // Reads the restaurant's own website (Yelp can't be read automatically) and returns the
+  // address, menu and delivery links found there. Nothing is saved - the fields are filled
+  // in on the page for review, and the normal Save/Approve button saves them.
+  function submitFill(website, yelpUrl, restaurantName){
+    return fetch(ENRICH_URL, {
+      method: 'POST',
+      headers: { 'Authorization': authHeader, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ website: website, yelpUrl: yelpUrl, restaurantName: restaurantName })
+    })
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(body){ return r.ok && body && body.ok ? body : { ok: false, notes: [(body && body.message) || ('HTTP ' + r.status)] }; }); })
+      .catch(function(err){ return { ok: false, notes: ['Request failed: ' + err.message] }; });
+  }
+
+  // Puts filled-in values into a card's or table row's inputs and highlights what changed
+  function applyFill(container, fields){
+    var changed = 0;
+    Object.keys(fields || {}).forEach(function(key){
+      var el = container.querySelector('[data-field="' + key + '"]');
+      if (!el || !fields[key] || el.value === fields[key]) return;
+      el.value = fields[key];
+      el.classList.add('filled');
+      changed++;
+    });
+    return changed;
   }
 
   function rowToPayload(row){
@@ -336,7 +368,8 @@
         '<td>' + tinput('doordashUrl', primary.doordashUrl, 'doordash') + '</td>' +
         platformCells +
         '<td class="statusCell"><span class="badge status" style="background:' + (allApproved ? 'var(--ok)' : 'var(--accent)') + '">' + (allApproved ? 'Published' : 'Needs review') + '</span></td>' +
-        '<td><button class="btn-primary" data-action="tableApprove">' + (allApproved ? 'Save' : 'Approve') + '</button></td>' +
+        '<td><button class="btn-ghost" data-action="tableFill" title="Fill address, menu and order links from the website">Fill</button> ' +
+          '<button class="btn-primary" data-action="tableApprove">' + (allApproved ? 'Save' : 'Approve') + '</button></td>' +
         '<td><button class="btn-danger" data-action="tableDelete">Remove</button></td>' +
       '</tr>';
     }).join('') + '</tbody>';
@@ -382,6 +415,21 @@
             btn.textContent = wasAllApproved ? 'Save' : 'Approve';
             alert('Some videos in this group failed to save for ' + (group[0].restaurantName || 'this restaurant') + ' — check the details and try again.');
           }
+        });
+      });
+
+      var fillBtn = tr.querySelector('[data-action="tableFill"]');
+      fillBtn.addEventListener('click', function(){
+        function val(k){ var el = tr.querySelector('[data-field="' + k + '"]'); return el ? el.value.trim() : ''; }
+        fillBtn.disabled = true;
+        fillBtn.textContent = '…';
+        submitFill(val('website'), val('yelpUrl'), val('restaurantName')).then(function(res){
+          fillBtn.disabled = false;
+          fillBtn.textContent = 'Fill';
+          var changed = res.ok ? applyFill(tr, res.fields) : 0;
+          var notes = (res.notes || []).slice();
+          if (res.ok && !changed) notes.unshift('Nothing new found on the site.');
+          if (notes.length) alert((group[0].restaurantName || 'This restaurant') + ':\n\n' + notes.join('\n'));
         });
       });
 
@@ -498,6 +546,11 @@
           field('DoorDash URL', 'doordashUrl', row.doordashUrl || '') +
           field('Video date', 'videoDate', row.videoDate || '') +
         '</div>' +
+        '<div class="fill-bar">' +
+          '<span class="hint">Confirm the restaurant\'s own <b>Website</b> and <b>Yelp URL</b> above, then fill the address, menu and order links from its site.</span>' +
+          '<button type="button" class="btn-ghost" data-action="fill">Fill from website &amp; Yelp</button>' +
+        '</div>' +
+        '<div class="fill-notes"></div>' +
         field('Must-try quote', 'quote', row.quote || '', 'textarea') +
         '<div class="actions">' +
           '<button class="btn-primary" data-action="approve">' + (isPublished ? 'Save changes' : 'Approve &amp; publish') + '</button>' +
@@ -522,6 +575,25 @@
     card.querySelector('[data-action="delete"]').addEventListener('click', function(e){
       e.stopPropagation();
       removeRow(row, card);
+    });
+    card.querySelector('[data-action="fill"]').addEventListener('click', function(e){
+      e.stopPropagation();
+      var btn = e.currentTarget;
+      var notesEl = card.querySelector('.fill-notes');
+      function val(k){ var el = card.querySelector('[data-field="' + k + '"]'); return el ? el.value.trim() : ''; }
+      btn.disabled = true;
+      btn.textContent = 'Reading site…';
+      notesEl.textContent = '';
+      submitFill(val('website'), val('yelpUrl'), val('restaurantName')).then(function(res){
+        btn.disabled = false;
+        btn.textContent = 'Fill from website & Yelp';
+        var changed = res.ok ? applyFill(card, res.fields) : 0;
+        var lines = [];
+        if (res.ok) lines.push(changed ? ('Filled ' + changed + ' field(s) (outlined in green) — review, then ' + (isPublished ? 'Save changes' : 'Approve & publish') + '.') : 'Nothing new found on the site.');
+        if (res.phone) lines.push('Phone on site: ' + res.phone);
+        (res.notes || []).forEach(function(n){ lines.push(n); });
+        notesEl.innerHTML = lines.map(function(l){ return '<div>' + esc(l) + '</div>'; }).join('');
+      });
     });
 
     var thumbHidden = card.querySelector('[data-field="thumbnailUrl"]');
